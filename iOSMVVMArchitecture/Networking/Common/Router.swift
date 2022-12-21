@@ -93,6 +93,8 @@ public struct Router {
         
         body.append(boundaryPrefix.nsdata)
         body.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(NSString(string: filename))\"\r\n\r\n".nsdata)
+        let mimeType = "image/jpeg"
+        body.append("Content-Type: \(mimeType)\r\n\r\n".nsdata)
         if let data = data {
             body.append(data)
             body.append("\r\n".nsdata)
