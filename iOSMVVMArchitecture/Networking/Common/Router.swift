@@ -40,7 +40,7 @@ public struct Router {
                  parameters: Parameters? = nil,
                  encoder:ParameterEncoding = URLEncoding.default) -> Request {
         
-        let url = endpoint.baseURL.appendingPathComponent(endpoint.path)
+        let url = (method == .get && parameters?.count ?? 0 > 0) ? (URL(string: buildParameter(url: endpoint.baseURL.absoluteString + endpoint.path, param: parameters!)))! : endpoint.baseURL.appendingPathComponent(endpoint.path)
         
         
         // Cerate request object
@@ -92,7 +92,7 @@ public struct Router {
         }
         
         body.append(boundaryPrefix.nsdata)
-        body.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(NSString(string: filename))\"\r\n\r\n".nsdata)
+        body.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(NSString(string: filename))\"\r\n".nsdata)
         let mimeType = "image/jpeg"
         body.append("Content-Type: \(mimeType)\r\n\r\n".nsdata)
         if let data = data {
@@ -105,4 +105,19 @@ public struct Router {
         return Request(with: urlRequest)
         
     }
+}
+
+//  this method is creating parameters for GET Request
+private func buildParameter(url: String, param: [String: Any]) -> String {
+    var urlComp = URLComponents(string: url)!
+    var items = [URLQueryItem]()
+    for (key,value) in param {
+        items.append(URLQueryItem(name: key, value: value as? String))
+    }
+    items = items.filter{!$0.name.isEmpty}
+    if !items.isEmpty {
+      urlComp.queryItems = items
+    }
+//        return "\(urlComp.url!)"
+    return urlComp.url?.absoluteString ?? ""
 }
